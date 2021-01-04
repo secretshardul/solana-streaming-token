@@ -14,7 +14,7 @@ body {
 
 .console {
   border: 1px solid black;
-  height: 80px;
+  min-height: 80px;
   padding: 2px;
   bottom: 10px;
   position: absolute;
