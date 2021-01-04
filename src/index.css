@@ -1,5 +1,6 @@
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-size: 14px;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
@@ -10,6 +11,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+
+button {
+  height: 25px;
+  margin: 5px;
+  background: none;
+  border-radius: 5px;
 }
 
 .console {
