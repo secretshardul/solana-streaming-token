@@ -1,4 +1,4 @@
-import { PublicKey, Connection } from "@solana/web3.js";
+import { Connection } from "@solana/web3.js";
 
 export const fromHexString = (hexString) => new Uint8Array(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
 
