@@ -1,26 +1,25 @@
 import { Component } from "react";
 import TorusSdk from "@toruslabs/torus-direct-web-sdk";
+import { Account } from "@solana/web3.js";
+import nacl from "tweetnacl";
+import * as bs58 from "bs58";
 
 import "./App.css";
-import {
-  verifierMap,
-  GOOGLE,
-  APPLE,
-  AUTH_DOMAIN,
-  EMAIL_PASSWORD,
-  GITHUB,
-  HOSTED_EMAIL_PASSWORDLESS,
-  HOSTED_SMS_PASSWORDLESS,
-  LINE,
-  LINKEDIN,
-  TWITTER,
-  WEIBO,
-} from "./config";
+import { verifierMap, GOOGLE, jwtParamsMap, networks } from "./config";
+import { fromHexString, getAccountInfo } from "./utils";
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = { selectedVerifier: GOOGLE, torusdirectsdk: null, consoleText: "" };
+    this.state = {
+      selectedVerifier: GOOGLE,
+      torusdirectsdk: null,
+      consoleText: "",
+      account: null,
+      solanaNetwork: networks.mainnet,
+      accountInfo: null,
+    };
+    console.log(networks);
   }
 
   componentDidMount = async () => {
@@ -45,7 +44,7 @@ class App extends Component {
     const { selectedVerifier, torusdirectsdk } = this.state;
 
     try {
-      const jwtParams = this._loginToConnectionMap()[selectedVerifier] || {};
+      const jwtParams = jwtParamsMap[selectedVerifier] || {};
       const { typeOfLogin, clientId, verifier } = verifierMap[selectedVerifier];
       const loginDetails = await torusdirectsdk.triggerLogin({
         typeOfLogin,
@@ -53,29 +52,32 @@ class App extends Component {
         clientId,
         jwtParams,
       });
-      this.setState({ consoleText: typeof loginDetails === "object" ? JSON.stringify(loginDetails) : loginDetails });
+      const solanaPrivateKey = nacl.sign.keyPair.fromSeed(fromHexString(loginDetails.privateKey.padStart(64, 0))).secretKey;
+      const account = new Account(solanaPrivateKey);
+      console.log(bs58.encode(account.secretKey), "secret key");
+      this.setState({ consoleText: typeof loginDetails === "object" ? JSON.stringify(loginDetails) : loginDetails, account });
+      this.updateAccountInfo();
     } catch (error) {
       console.error(error, "login caught");
     }
   };
 
-  _loginToConnectionMap = () => {
-    const { loginHint } = this.state;
-    return {
-      [EMAIL_PASSWORD]: { domain: AUTH_DOMAIN },
-      [HOSTED_EMAIL_PASSWORDLESS]: { domain: AUTH_DOMAIN, verifierIdField: "name", connection: "", isVerifierIdCaseSensitive: false },
-      [HOSTED_SMS_PASSWORDLESS]: { domain: AUTH_DOMAIN, verifierIdField: "name", connection: "" },
-      [APPLE]: { domain: AUTH_DOMAIN },
-      [GITHUB]: { domain: AUTH_DOMAIN },
-      [LINKEDIN]: { domain: AUTH_DOMAIN },
-      [TWITTER]: { domain: AUTH_DOMAIN },
-      [WEIBO]: { domain: AUTH_DOMAIN },
-      [LINE]: { domain: AUTH_DOMAIN },
-    };
+  updateAccountInfo = async () => {
+    const { account, solanaNetwork } = this.state;
+    if (!account) return;
+    const accountInfo = await getAccountInfo(solanaNetwork.url, account.publicKey);
+    this.setState({ accountInfo });
+  };
+
+  onChangeNetwork = async (e) => {
+    const requiredNetwork = Object.values(networks).find((x) => x.url === e.target.value);
+    this.setState({ solanaNetwork: requiredNetwork }, async () => {
+      await this.updateAccountInfo();
+    });
   };
 
   render() {
-    const { selectedVerifier, consoleText } = this.state;
+    const { selectedVerifier, consoleText, solanaNetwork, account, accountInfo } = this.state;
     return (
       <div className="App">
         <form onSubmit={this.login}>
@@ -88,11 +90,21 @@ class App extends Component {
                 </option>
               ))}
             </select>
+            <select value={solanaNetwork.url} onChange={this.onChangeNetwork}>
+              {Object.keys(networks).map((network) => (
+                <option value={networks[network].url} key={network}>
+                  {networks[network].displayName}
+                </option>
+              ))}
+            </select>
           </div>
           <div style={{ marginTop: "20px" }}>
             <button>Login with Torus</button>
           </div>
         </form>
+        {account && <div>Account: {account.publicKey.toBase58()}</div>}
+        {account && <div>Balance: {(accountInfo && accountInfo.lamports) || 0}</div>}
+
         <div className="console">
           <p>{consoleText}</p>
         </div>

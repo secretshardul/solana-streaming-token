@@ -1,3 +1,11 @@
+import { clusterApiUrl } from "@solana/web3.js";
+
+export const networks = {
+  mainnet: { url: "https://solana-api.projectserum.com", displayName: "Mainnet Beta" },
+  devnet: { url: clusterApiUrl("devnet"), displayName: "Devnet" },
+  testnet: { url: clusterApiUrl("testnet"), displayName: "Testnet" },
+};
+
 export const GOOGLE = "google";
 export const FACEBOOK = "facebook";
 export const REDDIT = "reddit";
@@ -50,4 +58,16 @@ export const verifierMap = {
     clientId: "nSYBFalV2b1MSg5b2raWqHl63tfH3KQa",
     verifier: "torus-auth0-sms-passwordless",
   },
+};
+
+export const jwtParamsMap = {
+  [EMAIL_PASSWORD]: { domain: AUTH_DOMAIN },
+  [HOSTED_EMAIL_PASSWORDLESS]: { domain: AUTH_DOMAIN, verifierIdField: "name", connection: "", isVerifierIdCaseSensitive: false },
+  [HOSTED_SMS_PASSWORDLESS]: { domain: AUTH_DOMAIN, verifierIdField: "name", connection: "" },
+  [APPLE]: { domain: AUTH_DOMAIN },
+  [GITHUB]: { domain: AUTH_DOMAIN },
+  [LINKEDIN]: { domain: AUTH_DOMAIN },
+  [TWITTER]: { domain: AUTH_DOMAIN },
+  [WEIBO]: { domain: AUTH_DOMAIN },
+  [LINE]: { domain: AUTH_DOMAIN },
 };
