@@ -26,8 +26,6 @@ class App extends Component {
     try {
       const torusdirectsdk = new TorusSdk({
         baseUrl: `${window.location.origin}/serviceworker`,
-        enableLogging: true,
-        proxyContractAddress: "0x4023d2a0D330bF11426B12C6144Cfb96B7fa6183", // details for test net
         network: "testnet", // details for test net
       });
 
@@ -52,16 +50,11 @@ class App extends Component {
         clientId,
         jwtParams,
       });
-      const solanaPrivateKey = nacl.sign.keyPair.fromSeed(
-        fromHexString(loginDetails.privateKey.padStart(64, 0))
-      ).secretKey;
+      const solanaPrivateKey = nacl.sign.keyPair.fromSeed(fromHexString(loginDetails.privateKey.padStart(64, 0))).secretKey;
       const account = new Account(solanaPrivateKey);
       console.log(bs58.encode(account.secretKey), "secret key");
       this.setState({
-        consoleText:
-          typeof loginDetails === "object"
-            ? JSON.stringify(loginDetails)
-            : loginDetails,
+        consoleText: typeof loginDetails === "object" ? JSON.stringify(loginDetails, null, 2) : loginDetails,
         account,
       });
       this.updateAccountInfo();
@@ -73,42 +66,25 @@ class App extends Component {
   updateAccountInfo = async () => {
     const { account, solanaNetwork } = this.state;
     if (!account) return;
-    const accountInfo = await getAccountInfo(
-      solanaNetwork.url,
-      account.publicKey
-    );
+    const accountInfo = await getAccountInfo(solanaNetwork.url, account.publicKey);
     this.setState({ accountInfo });
   };
 
   onChangeNetwork = async (e) => {
-    const requiredNetwork = Object.values(networks).find(
-      (x) => x.url === e.target.value
-    );
+    const requiredNetwork = Object.values(networks).find((x) => x.url === e.target.value);
     this.setState({ solanaNetwork: requiredNetwork }, async () => {
       await this.updateAccountInfo();
     });
   };
 
   render() {
-    const {
-      selectedVerifier,
-      consoleText,
-      solanaNetwork,
-      account,
-      accountInfo,
-    } = this.state;
+    const { selectedVerifier, consoleText, solanaNetwork, account, accountInfo } = this.state;
     return (
       <div className="App">
         <form onSubmit={this.login}>
           <div>
             <span style={{ marginRight: "10px" }}>Verifier:</span>
-            <select
-              value={selectedVerifier}
-              onChange={(e) =>
-                this.setState({ selectedVerifier: e.target.value })
-              }
-              style={{ marginRight: "10px" }}
-            >
+            <select value={selectedVerifier} onChange={(e) => this.setState({ selectedVerifier: e.target.value })} style={{ marginRight: "10px" }}>
               {Object.keys(verifierMap).map((login) => (
                 <option value={login} key={login.toString()}>
                   {verifierMap[login].name}
@@ -132,8 +108,7 @@ class App extends Component {
             style={{
               fontSize: "14px",
               marginTop: "20px",
-            }}
-          >
+            }}>
             <div>
               Account: <i>{account.publicKey.toBase58()}</i>
             </div>
@@ -144,7 +119,9 @@ class App extends Component {
         )}
 
         <div className="console">
-          <code>{consoleText}</code>
+          <code>
+            <pre>{consoleText}</pre>
+          </code>
         </div>
       </div>
     );

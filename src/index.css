@@ -21,8 +21,6 @@ button {
 }
 
 .console {
-  border: 1px solid black;
-  min-height: 80px;
   padding: 2px;
   bottom: 10px;
   position: absolute;
@@ -31,7 +29,6 @@ button {
   border-radius: 5px;
 }
 .console::before {
-  content: "Console :";
   position: absolute;
   top: -20px;
   font-size: 12px;
