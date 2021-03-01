@@ -17,7 +17,7 @@ import BufferLayout from 'buffer-layout';
 const url = clusterApiUrl('devnet')
 let connection: Connection
 
-const PROGRAM_ID = 'AvzCBSeWTfia6mtqW646sXuEZYQSWbVoPc5TkXkaLmxr'
+const PROGRAM_ID = 'D5krXNs4Hguw3Rwem2vjaMZZcgtjRxhx6caTwY7WNRiq'
 const PROGRAM_PUBLIC_KEY = new PublicKey(PROGRAM_ID)
 
 const greetedAccountDataLayout = BufferLayout.struct([
