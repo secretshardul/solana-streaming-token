@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { Component, useEffect, useState } from "react";
 import TorusSdk from "@toruslabs/torus-direct-web-sdk";
 import { Account } from "@solana/web3.js";
 import nacl from "tweetnacl";
@@ -8,128 +8,49 @@ import "./App.css";
 import { verifierMap, GOOGLE, jwtParamsMap, networks } from "./config";
 import { fromHexString, getAccountInfo } from "./utils";
 
-class LoginScreen extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedVerifier: GOOGLE,
-      torusdirectsdk: null,
-      consoleText: "",
-      account: null,
-      solanaNetwork: networks.devnet,
-      accountInfo: null,
-    };
-    console.log(networks);
-  }
+function LoginScreen() {
+  const [torus, setTorus] = useState()
+  const [accountInfo, setAccountInfo] = useState()
 
-  componentDidMount = async () => {
-    try {
+  useEffect(() => {
+    async function initTorus() {
       const torusdirectsdk = new TorusSdk({
         baseUrl: `${window.location.origin}/serviceworker`,
         network: "testnet", // details for test net
-      });
+      })
 
       await torusdirectsdk.init({ skipSw: false });
-
-      this.setState({ torusdirectsdk: torusdirectsdk });
-    } catch (error) {
-      console.error(error, "mounted caught");
+      setTorus(torusdirectsdk)
     }
+    initTorus()
+  }, [])
+
+  async function login() {
+    const selectedVerifier = GOOGLE
+
+    const jwtParams = jwtParamsMap[selectedVerifier] || {}
+    const { typeOfLogin, clientId, verifier } = verifierMap[selectedVerifier]
+    console.log('Torus', torus)
+    const loginDetails = await torus.triggerLogin({
+      typeOfLogin,
+      verifier,
+      clientId,
+      jwtParams,
+    })
+    const solanaPrivateKey = nacl.sign.keyPair.fromSeed(fromHexString(loginDetails.privateKey.padStart(64, 0))).secretKey
+    const account = new Account(solanaPrivateKey)
+    console.log(bs58.encode(account.secretKey), "secret key")
+    console.log('Public key', account.publicKey.toBase58())
+    setAccountInfo(account)
   };
 
-  login = async (e) => {
-    e.preventDefault();
-    const { selectedVerifier, torusdirectsdk } = this.state;
-
-    try {
-      const jwtParams = jwtParamsMap[selectedVerifier] || {};
-      const { typeOfLogin, clientId, verifier } = verifierMap[selectedVerifier];
-      const loginDetails = await torusdirectsdk.triggerLogin({
-        typeOfLogin,
-        verifier,
-        clientId,
-        jwtParams,
-      });
-      const solanaPrivateKey = nacl.sign.keyPair.fromSeed(fromHexString(loginDetails.privateKey.padStart(64, 0))).secretKey;
-      const account = new Account(solanaPrivateKey);
-      console.log(bs58.encode(account.secretKey), "secret key");
-      console.log('Public key', account.publicKey.toBase58())
-
-
-      this.setState({
-        consoleText: typeof loginDetails === "object" ? JSON.stringify(loginDetails, null, 2) : loginDetails,
-        account,
-      });
-      this.updateAccountInfo();
-    } catch (error) {
-      console.error(error, "login caught");
-    }
-  };
-
-  updateAccountInfo = async () => {
-    const { account, solanaNetwork } = this.state;
-    if (!account) return;
-    const accountInfo = await getAccountInfo(solanaNetwork.url, account.publicKey);
-    this.setState({ accountInfo });
-  };
-
-  onChangeNetwork = async (e) => {
-    const requiredNetwork = Object.values(networks).find((x) => x.url === e.target.value);
-    this.setState({ solanaNetwork: requiredNetwork }, async () => {
-      await this.updateAccountInfo();
-    });
-  };
-
-  render() {
-    const { selectedVerifier, consoleText, solanaNetwork, account, accountInfo } = this.state;
-    return (
-      <div className="App">
-        <button onClick={this.login}>Login with Google</button>
-        {/* <form onSubmit={this.login}>
-          <div>
-            <span style={{ marginRight: "10px" }}>Verifier:</span>
-            <select value={selectedVerifier} onChange={(e) => this.setState({ selectedVerifier: e.target.value })} style={{ marginRight: "10px" }}>
-              {Object.keys(verifierMap).map((login) => (
-                <option value={login} key={login.toString()}>
-                  {verifierMap[login].name}
-                </option>
-              ))}
-            </select>
-            <select value={solanaNetwork.url} onChange={this.onChangeNetwork}>
-              {Object.keys(networks).map((network) => (
-                <option value={networks[network].url} key={network}>
-                  {networks[network].displayName}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div style={{ marginTop: "20px" }}>
-            <button>Login with Torus</button>
-          </div>
-        </form> */}
-        {account && (
-          <section
-            style={{
-              fontSize: "14px",
-              marginTop: "20px",
-            }}>
-            <div>
-              Account: <i>{account.publicKey.toBase58()}</i>
-            </div>
-            <div>
-              Balance: <i>{(accountInfo && accountInfo.lamports) || 0}</i>
-            </div>
-          </section>
-        )}
-
-        <div className="console">
-          <code>
-            <pre>{consoleText}</pre>
-          </code>
-        </div>
-      </div>
-    );
-  }
+  return (
+    <div className="App">
+      {
+        torus && <button onClick={login}>Login with Google</button>
+      }
+    </div>
+  )
 }
 
 export default LoginScreen;
