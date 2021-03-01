@@ -91,6 +91,45 @@ export async function addBalance(address: PublicKey, payerAccount: Account) {
     console.log('Response', addBalanceResponse)
 }
 
+export async function startFlow(flow: number, senderPubKey: PublicKey, receiverPubKey: PublicKey, payerAccount: Account) {
+    console.log('Creating flow from', senderPubKey.toBase58(), 'to', receiverPubKey.toBase58())
+
+    const commandDataLayout = BufferLayout.struct([
+        BufferLayout.u8('instruction'),
+        BufferLayout.u8('flow')
+    ])
+    let data = Buffer.alloc(1024)
+    {
+        const encodeLength = commandDataLayout.encode(
+            {
+                instruction: 2,
+                flow
+            },
+            data,
+        )
+        data = data.slice(0, encodeLength)
+    }
+
+    const instruction = new TransactionInstruction({
+        keys: [
+            { pubkey: senderPubKey, isSigner: false, isWritable: true },
+            { pubkey: receiverPubKey, isSigner: false, isWritable: true }
+        ],
+        programId: PROGRAM_PUBLIC_KEY,
+        data, // All instructions are hellos
+    })
+    const startFlowTransaction = await sendAndConfirmTransaction(
+        connection,
+        new Transaction().add(instruction),
+        [payerAccount],
+        {
+            commitment: 'singleGossip',
+            preflightCommitment: 'singleGossip',
+        },
+    )
+    console.log('Response', startFlowTransaction)
+}
+
 export async function createProgramAc(payerAccount: Account) {
     const senderAccount = new Account()
     const senderPubKey = senderAccount.publicKey

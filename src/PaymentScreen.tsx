@@ -9,7 +9,7 @@ import RadioGroup from '@material-ui/core/RadioGroup'
 import Radio from '@material-ui/core/Radio'
 import Paper from '@material-ui/core/Paper'
 import { Button, Typography } from '@material-ui/core'
-import { addBalance, createProgramAc, establishConnection, getBalance } from './tokenApi'
+import { addBalance, createProgramAc, establishConnection, getBalance, startFlow } from './tokenApi'
 import { useEffect, useState } from 'react'
 
 const useStyles = makeStyles((theme) => ({
@@ -42,9 +42,7 @@ type Props = {
 }
 export default function PaymentScreen({ privateKey }: Props) {
     const classes = useStyles();
-    console.log('Got private key in payment screen', privateKey)
     const parsedKey = privateKey.split(',').map(value => Number(value))
-    console.log('Parsed key', parsedKey)
     const account = new Account(parsedKey)
 
     const [senderKey, setSenderKey] = useState<PublicKey>()
@@ -70,6 +68,18 @@ export default function PaymentScreen({ privateKey }: Props) {
         }
     }
 
+    async function startFlowHandler() {
+        if(senderKey && receiverKey) {
+            await startFlow(2, senderKey, receiverKey, account)
+        }
+    }
+
+    async function stopFlowHandler() {
+        if (senderKey && receiverKey) {
+            await startFlow(0, senderKey, receiverKey, account)
+        }
+    }
+
     const increaseNum = () => setSenderBal((prev) => prev + 1)
 
     useEffect(() => {
@@ -87,7 +97,7 @@ export default function PaymentScreen({ privateKey }: Props) {
                     const currentTime = Math.floor(Date.now() / 1000)
                     timeDiff = currentTime - lastTranTime
                 }
-                const bal = staticBal + flow * timeDiff
+                const bal = staticBal + timeDiff * flow /100
                 // console.log('Actual balance', bal)
                 setter(bal)
             }, 1000)
@@ -107,12 +117,14 @@ export default function PaymentScreen({ privateKey }: Props) {
     }
 
     useEffect(() => {
+        console.log('Getting sender balance')
         setBalanceListener(setSenderBal, senderKey)
     }, [senderKey])
 
     useEffect(() => {
+        console.log('Getting receiver balance')
         setBalanceListener(setReceiverBal, receiverKey)
-    }, [senderKey])
+    }, [receiverKey])
 
 
     return(
@@ -133,12 +145,12 @@ export default function PaymentScreen({ privateKey }: Props) {
                 </Grid>
             </Grid>
             <Grid item xs={12} className={classes.flowButton}>
-                <Button variant="contained" color="primary">
+                <Button variant="contained" color="primary" onClick={startFlowHandler}>
                     Flow
                 </Button>
             </Grid>
             <Grid item xs={12}>
-                <Button variant="contained" color="secondary">
+                <Button variant="contained" color="secondary" onClick={stopFlowHandler}>
                     Stop
                 </Button>
             </Grid>
