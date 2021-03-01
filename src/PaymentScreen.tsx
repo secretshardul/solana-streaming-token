@@ -9,7 +9,7 @@ import RadioGroup from '@material-ui/core/RadioGroup'
 import Radio from '@material-ui/core/Radio'
 import Paper from '@material-ui/core/Paper'
 import { Button, Typography } from '@material-ui/core'
-import { createProgramAc, establishConnection, getBalance } from './tokenApi'
+import { addBalance, createProgramAc, establishConnection, getBalance } from './tokenApi'
 import { useEffect, useState } from 'react'
 
 const useStyles = makeStyles((theme) => ({
@@ -31,6 +31,9 @@ const useStyles = makeStyles((theme) => ({
     },
     tokenCount: {
         marginTop: theme.spacing(2)
+    },
+    airdropButton: {
+        marginTop: theme.spacing(1)
     }
 }));
 
@@ -85,13 +88,22 @@ export default function PaymentScreen({ privateKey }: Props) {
                     timeDiff = currentTime - lastTranTime
                 }
                 const bal = staticBal + flow * timeDiff
-                console.log('Actual balance', bal)
+                // console.log('Actual balance', bal)
                 setter(bal)
             }, 1000)
             return () => clearInterval(timer)
         } else {
             console.log('Account not yet set')
         }
+    }
+
+    async function addTokens() {
+        if(senderKey) {
+            await addBalance(
+                senderKey, account
+            )
+        }
+
     }
 
     useEffect(() => {
@@ -110,6 +122,9 @@ export default function PaymentScreen({ privateKey }: Props) {
                     <Grid item xs={4}>
                         <Typography variant="h4">You</Typography>
                         <Typography variant="h5" className={classes.tokenCount}>{senderBal}</Typography>
+                        <Button variant="outlined" color="primary" className={classes.airdropButton} onClick={addTokens}>
+                            +5 Airdrop
+                        </Button>
                     </Grid>
                     <Grid item xs={4}>
                         <Typography variant="h4">Vendor</Typography>

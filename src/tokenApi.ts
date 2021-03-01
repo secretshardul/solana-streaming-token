@@ -56,6 +56,41 @@ export async function getBalance(account: PublicKey) {
 
 }
 
+export async function addBalance(address: PublicKey, payerAccount: Account) {
+    console.log('Adding balance to', address.toBase58())
+
+    const commandDataLayout = BufferLayout.struct([
+        BufferLayout.u8('instruction')
+    ])
+    let data = Buffer.alloc(1024)
+    {
+        const encodeLength = commandDataLayout.encode(
+            {
+                instruction: 1,
+            },
+            data,
+        )
+        data = data.slice(0, encodeLength)
+    }
+
+    const instruction = new TransactionInstruction({
+        keys: [{ pubkey: address, isSigner: false, isWritable: true }],
+        programId: PROGRAM_PUBLIC_KEY,
+        data,
+    })
+
+    const addBalanceResponse = await sendAndConfirmTransaction(
+        connection,
+        new Transaction().add(instruction),
+        [payerAccount],
+        {
+            commitment: 'singleGossip',
+            preflightCommitment: 'singleGossip',
+        },
+    )
+    console.log('Response', addBalanceResponse)
+}
+
 export async function createProgramAc(payerAccount: Account) {
     const senderAccount = new Account()
     const senderPubKey = senderAccount.publicKey
