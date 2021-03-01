@@ -32,11 +32,30 @@ export async function establishConnection(): Promise<void> {
     console.log('Connection to cluster established:', url, version)
 }
 
-async function getProgramAccounts(payerAccount: Account) {
+async function getLastTransactionTime(address: PublicKey) {
+    const signatureInfo = await connection.getConfirmedSignaturesForAddress2(address, {
+        limit: 1
+    })
+    const lastSignature = signatureInfo.pop()
+    return lastSignature?.blockTime
+}
 
-    // payerAccoun
+export async function getBalance(account: PublicKey) {
+    const accountInfo = await connection.getAccountInfo(account)
+    if (accountInfo === null) {
+        throw 'Error: cannot find the greeted account'
+    }
+    const info = greetedAccountDataLayout.decode(Buffer.from(accountInfo.data))
+    const staticBal = Number(info.numGreets.toString())
+    const flow = Number(info.flow.toString())
+    console.log('Static balance', staticBal)
+    console.log('Flow', flow)
+
+    const lastTranTime = await getLastTransactionTime(account)
+    return {staticBal, flow, lastTranTime}
 
 }
+
 export async function createProgramAc(payerAccount: Account) {
     const senderAccount = new Account()
     const senderPubKey = senderAccount.publicKey
