@@ -1,3 +1,6 @@
+import {
+    Account
+} from '@solana/web3.js';
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import FormLabel from '@material-ui/core/FormLabel'
@@ -32,20 +35,15 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 type Props = {
-    account?: Account
+    privateKey: string
 }
-export default function PaymentScreen({ account }: Props) {
+export default function PaymentScreen({ privateKey }: Props) {
     const classes = useStyles();
-    console.log('Got account', account)
+    console.log('Got private key in payment screen', privateKey)
+    const parsedKey = privateKey.split(',').map(value => Number(value))
+    console.log('Parsed key', parsedKey)
+    const account = new Account(parsedKey)
 
-    // useEffect(() => {
-    //     initializeAccount()
-    // }, [])
-
-    // async function initializeAccount() {
-    //     await establishConnection()
-    //     await createProgramAc(account)
-    // }
     return(
         // <div>gg</div>
         <Grid container className={classes.root} spacing={10}>

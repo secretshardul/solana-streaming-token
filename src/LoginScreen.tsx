@@ -2,15 +2,15 @@ import { Component, useEffect, useState } from "react";
 import TorusSdk from "@toruslabs/torus-direct-web-sdk";
 import { Account } from "@solana/web3.js";
 import nacl from "tweetnacl";
-import * as bs58 from "bs58";
 import { useHistory } from "react-router-dom";
-
 import "./App.css";
-import { verifierMap, GOOGLE, jwtParamsMap, networks } from "./config";
 import { fromHexString, getAccountInfo } from "./utils";
 
-function LoginScreen({ setAccount }) {
-  const [torus, setTorus] = useState()
+type Props = {
+  setPrivateKey: React.Dispatch<React.SetStateAction<string | null>>
+}
+function LoginScreen({ setPrivateKey }: Props) {
+  const [torus, setTorus] = useState<TorusSdk>()
   const history = useHistory()
 
   useEffect(() => {
@@ -27,23 +27,18 @@ function LoginScreen({ setAccount }) {
   }, [])
 
   async function login() {
-    const selectedVerifier = GOOGLE
-
-    const jwtParams = jwtParamsMap[selectedVerifier] || {}
-    const { typeOfLogin, clientId, verifier } = verifierMap[selectedVerifier]
     console.log('Torus', torus)
-    const loginDetails = await torus.triggerLogin({
-      typeOfLogin,
-      verifier,
-      clientId,
-      jwtParams,
+    const loginDetails = await torus!.triggerLogin({
+      typeOfLogin: "google",
+      clientId: "221898609709-obfn3p63741l5333093430j3qeiinaa8.apps.googleusercontent.com",
+      verifier: "google-lrc",
     })
-    const solanaPrivateKey = nacl.sign.keyPair.fromSeed(fromHexString(loginDetails.privateKey.padStart(64, 0))).secretKey
-    const account = new Account(solanaPrivateKey)
-    console.log(bs58.encode(account.secretKey), "secret key")
-    console.log('Public key', account.publicKey.toBase58())
-    setAccount(account)
-    history.push("/payment")
+    const solanaPrivateKey = nacl.sign.keyPair.fromSeed(fromHexString(loginDetails.privateKey.padStart(64))).secretKey
+
+    const stringKey = '' + solanaPrivateKey
+    console.log('Stringified key', stringKey)
+    window.localStorage.setItem('privateKey', stringKey)
+    setPrivateKey(stringKey)
   };
 
   return (

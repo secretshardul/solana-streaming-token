@@ -53,7 +53,7 @@ export async function createProgramAc(payerAccount: Account) {
     const transactionId = await sendAndConfirmTransaction(
         connection,
         transaction,
-        [payerAccount],
+        [payerAccount, senderAccount],
         {
             commitment: 'singleGossip',
             preflightCommitment: 'singleGossip',

@@ -1,4 +1,4 @@
-import React, { Component, useState } from "react";
+import React, { Component, Fragment, useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -10,20 +10,22 @@ import { verifierMap, GOOGLE, jwtParamsMap, networks } from "./config";
 import { fromHexString, getAccountInfo } from "./utils";
 import LoginScreen from "./LoginScreen"
 import PaymentScreen from "./PaymentScreen"
+import { Account } from "@solana/web3.js"
 
 export default function App() {
-  const [account, setAccount] = useState()
+  // const [account, setAccount] = useState()
+  const [privateKey, setPrivateKey] = useState(
+    window.localStorage.getItem('privateKey')
+  )
+  console.log('Private key', privateKey)
 
   return(
-    <Router>
-      <Switch>
-        <Route path="/payment">
-          <PaymentScreen account={account} />
-        </Route>
-        <Route path="/">
-          <LoginScreen setAccount={setAccount}/>
-        </Route>
-      </Switch>
-    </Router>
+    <Fragment>
+      {
+        privateKey
+          ? <PaymentScreen privateKey={privateKey} />
+          : <LoginScreen setPrivateKey={setPrivateKey} />
+      }
+    </Fragment>
   )
 }
