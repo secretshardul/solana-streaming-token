@@ -1,5 +1,5 @@
 import {
-    Account
+    Account, PublicKey
 } from '@solana/web3.js';
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
@@ -10,7 +10,7 @@ import Radio from '@material-ui/core/Radio'
 import Paper from '@material-ui/core/Paper'
 import { Button, Typography } from '@material-ui/core'
 import { createProgramAc, establishConnection } from './tokenApi'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -44,8 +44,34 @@ export default function PaymentScreen({ privateKey }: Props) {
     console.log('Parsed key', parsedKey)
     const account = new Account(parsedKey)
 
+    const [senderKey, setSenderKey] = useState<PublicKey>()
+    const [receiverKey, setReceiverKey] = useState<PublicKey>()
+
+    async function setPublicKey(
+        localStorageKey: string,
+        setter: React.Dispatch<React.SetStateAction<PublicKey | undefined>>
+    ) {
+        console.log('Settig public key for', localStorageKey)
+
+        const keyString = window.localStorage.getItem(localStorageKey)
+        if (keyString) {
+            console.log('Stored', localStorageKey, ':', keyString)
+            setter(new PublicKey(keyString))
+        } else {
+            const newPublicKey = await createProgramAc(account)
+            window.localStorage.setItem(localStorageKey, newPublicKey.toBase58())
+            setter(newPublicKey)
+        }
+    }
+
+    useEffect(() => {
+        establishConnection()
+        setPublicKey('senderKey', setSenderKey)
+        setPublicKey('receiverKey', setReceiverKey)
+
+    }, [])
+
     return(
-        // <div>gg</div>
         <Grid container className={classes.root} spacing={10}>
             <Grid item xs={12} className={classes.balances}>
                 <Grid container justify="center" spacing={10}>

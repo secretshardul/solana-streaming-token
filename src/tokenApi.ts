@@ -32,6 +32,11 @@ export async function establishConnection(): Promise<void> {
     console.log('Connection to cluster established:', url, version)
 }
 
+async function getProgramAccounts(payerAccount: Account) {
+
+    // payerAccoun
+
+}
 export async function createProgramAc(payerAccount: Account) {
     const senderAccount = new Account()
     const senderPubKey = senderAccount.publicKey
@@ -60,4 +65,6 @@ export async function createProgramAc(payerAccount: Account) {
         },
     );
     console.log('Create account transaction ID', transactionId)
+
+    return senderPubKey
 }
