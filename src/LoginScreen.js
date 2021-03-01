@@ -3,14 +3,15 @@ import TorusSdk from "@toruslabs/torus-direct-web-sdk";
 import { Account } from "@solana/web3.js";
 import nacl from "tweetnacl";
 import * as bs58 from "bs58";
+import { useHistory } from "react-router-dom";
 
 import "./App.css";
 import { verifierMap, GOOGLE, jwtParamsMap, networks } from "./config";
 import { fromHexString, getAccountInfo } from "./utils";
 
-function LoginScreen() {
+function LoginScreen({ setAccount }) {
   const [torus, setTorus] = useState()
-  const [accountInfo, setAccountInfo] = useState()
+  const history = useHistory()
 
   useEffect(() => {
     async function initTorus() {
@@ -41,7 +42,8 @@ function LoginScreen() {
     const account = new Account(solanaPrivateKey)
     console.log(bs58.encode(account.secretKey), "secret key")
     console.log('Public key', account.publicKey.toBase58())
-    setAccountInfo(account)
+    setAccount(account)
+    history.push("/payment")
   };
 
   return (
