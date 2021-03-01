@@ -16,7 +16,7 @@ class App extends Component {
       torusdirectsdk: null,
       consoleText: "",
       account: null,
-      solanaNetwork: networks.mainnet,
+      solanaNetwork: networks.devnet,
       accountInfo: null,
     };
     console.log(networks);
@@ -53,6 +53,7 @@ class App extends Component {
       const solanaPrivateKey = nacl.sign.keyPair.fromSeed(fromHexString(loginDetails.privateKey.padStart(64, 0))).secretKey;
       const account = new Account(solanaPrivateKey);
       console.log(bs58.encode(account.secretKey), "secret key");
+      console.log('Public key', account.publicKey.toBase58())
       this.setState({
         consoleText: typeof loginDetails === "object" ? JSON.stringify(loginDetails, null, 2) : loginDetails,
         account,
@@ -81,7 +82,8 @@ class App extends Component {
     const { selectedVerifier, consoleText, solanaNetwork, account, accountInfo } = this.state;
     return (
       <div className="App">
-        <form onSubmit={this.login}>
+        <button onClick={this.login}>Login with Google</button>
+        {/* <form onSubmit={this.login}>
           <div>
             <span style={{ marginRight: "10px" }}>Verifier:</span>
             <select value={selectedVerifier} onChange={(e) => this.setState({ selectedVerifier: e.target.value })} style={{ marginRight: "10px" }}>
@@ -102,7 +104,7 @@ class App extends Component {
           <div style={{ marginTop: "20px" }}>
             <button>Login with Torus</button>
           </div>
-        </form>
+        </form> */}
         {account && (
           <section
             style={{
