@@ -6,6 +6,8 @@ import RadioGroup from '@material-ui/core/RadioGroup'
 import Radio from '@material-ui/core/Radio'
 import Paper from '@material-ui/core/Paper'
 import { Button, Typography } from '@material-ui/core'
+import { createProgramAc, establishConnection } from './tokenApi'
+import { useEffect } from 'react'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -29,13 +31,24 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-
-export default function PaymentScreen({ account }) {
+type Props = {
+    account?: Account
+}
+export default function PaymentScreen({ account }: Props) {
     const classes = useStyles();
-
     console.log('Got account', account)
+
+    // useEffect(() => {
+    //     initializeAccount()
+    // }, [])
+
+    // async function initializeAccount() {
+    //     await establishConnection()
+    //     await createProgramAc(account)
+    // }
     return(
-        <Grid container className={classes.root} spacing={12}>
+        // <div>gg</div>
+        <Grid container className={classes.root} spacing={10}>
             <Grid item xs={12} className={classes.balances}>
                 <Grid container justify="center" spacing={10}>
                     <Grid item xs={4}>
