@@ -1,6 +1,8 @@
 # Solana streaming token
 A streaming token inspired by superfluid. Streams are continuous flows of value. Once a stream is opened, no additional fees are required.
 
+## [DEMO](https://solarstream.netlify.app/)
+
 ## Use cases
 - Subscriptions
 - Recurring payments
@@ -15,18 +17,18 @@ REAL_TIME_BALANCE = STATIC_BALANCE + FLOW*TIME_DIFFERENCE
 - The stored static balance is updated each time the flow is changed or tokens are airdropped.
 - A timer driven program is used to visualize the flow in real time.
 
-# Tech stack
+## Tech stack
 1. Frontend: React, Typescript
 2. Solana program: Rust
 3. Wallet and authentication: Torus
 
-# Future scope
+## Future scope
 1. At this moment, the token supports only 2 entities- the sender and receiver. Superfluid is able to handle multiple flows simultaneously.
 2. The streaming token program is independent of the SPL token program. In future, the streaming logic will be added on top of the SPL program by creating a fork. This is similar to how Solidity developers build on the ERC20 token standard.
 3. Currently client-side calculations are required to find actual token balance at any given time. This operation should be performed on chain.
 4. To transmit actual monetary value, SolarStream tokens will be wrappers around Sol tokens or stablecoins. SuperFluid wraps and turns DAI into streamable xDAI.
 
-# References
+## References
 - [SuperFluid](https://www.superfluid.finance/)
 - [SuperFluid white paper](https://www.notion.so/Superfluid-Technical-Paper-Draft-2-8b7c5c3e212a4a40ad2e252f1609daea)
 - [EIP 2100](https://github.com/ethereum/EIPs/issues/2100)
