@@ -1,13 +1,6 @@
-import {
-    Account, PublicKey
-} from '@solana/web3.js';
+import { Account, PublicKey } from '@solana/web3.js'
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
-import FormLabel from '@material-ui/core/FormLabel'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import RadioGroup from '@material-ui/core/RadioGroup'
-import Radio from '@material-ui/core/Radio'
-import Paper from '@material-ui/core/Paper'
 import { Button, Typography } from '@material-ui/core'
 import { addBalance, createProgramAc, establishConnection, getBalance, startFlow } from './tokenApi'
 import { useEffect, useState } from 'react'
@@ -38,13 +31,13 @@ const useStyles = makeStyles((theme) => ({
     airdropButton: {
         marginTop: theme.spacing(1)
     },
-}));
+}))
 
 type Props = {
     privateKey: string
 }
 export default function PaymentScreen({ privateKey }: Props) {
-    const classes = useStyles();
+    const classes = useStyles()
     const parsedKey = privateKey.split(',').map(value => Number(value))
     const account = new Account(parsedKey)
 
@@ -130,25 +123,25 @@ export default function PaymentScreen({ privateKey }: Props) {
     return(
         <Grid container className={classes.root} spacing={1}>
             <Grid item xs={12} className={classes.balances}>
-                <Grid container justify="center" spacing={10}>
+                <Grid container justify='center' spacing={10}>
                     <Grid item xs={4}>
-                        <Typography variant="h4">You</Typography>
-                        <Typography variant="h5" className={classes.tokenCount}>{senderBal} coins</Typography>
-                        <Button variant="outlined" color="primary" className={classes.airdropButton} onClick={addTokens}>
+                        <Typography variant='h4'>You</Typography>
+                        <Typography variant='h5' className={classes.tokenCount}>{senderBal} coins</Typography>
+                        <Button variant='outlined' color='primary' className={classes.airdropButton} onClick={addTokens}>
                             +50 Airdrop
                         </Button>
                     </Grid>
                     <Grid item xs={4}>
-                        <Typography variant="h4">Vendor</Typography>
-                        <Typography variant="h5" className={classes.tokenCount}>{receiverBal} coins</Typography>
+                        <Typography variant='h4'>Vendor</Typography>
+                        <Typography variant='h5' className={classes.tokenCount}>{receiverBal} coins</Typography>
                     </Grid>
                 </Grid>
             </Grid>
             <Grid item xs={12} className={classes.flowButtonGroup}>
-                <Button variant="contained" color="primary" className={classes.flowButton} onClick={startFlowHandler}>
+                <Button variant='contained' color='primary' className={classes.flowButton} onClick={startFlowHandler}>
                     Flow
                 </Button>
-                <Button variant="contained" color="secondary" className={classes.flowButton} onClick={stopFlowHandler}>
+                <Button variant='contained' color='secondary' className={classes.flowButton} onClick={stopFlowHandler}>
                     Stop
                 </Button>
             </Grid>

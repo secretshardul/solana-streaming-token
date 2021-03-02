@@ -1,18 +1,15 @@
 import {
     Account,
     Connection,
-    BpfLoader,
-    BPF_LOADER_PROGRAM_ID,
     PublicKey,
-    LAMPORTS_PER_SOL,
     SystemProgram,
     TransactionInstruction,
     Transaction,
     sendAndConfirmTransaction,
     clusterApiUrl,
-} from '@solana/web3.js';
+} from '@solana/web3.js'
 // @ts-ignore
-import BufferLayout from 'buffer-layout';
+import BufferLayout from 'buffer-layout'
 
 const url = clusterApiUrl('devnet')
 let connection: Connection
@@ -23,25 +20,17 @@ const PROGRAM_PUBLIC_KEY = new PublicKey(PROGRAM_ID)
 // To get current time
 const clockAccountKey = new PublicKey('SysvarC1ock11111111111111111111111111111111')
 
-const greetedAccountDataLayout = BufferLayout.struct([
+const dataLayout = BufferLayout.struct([
     BufferLayout.u32('numGreets'),
     BufferLayout.s32('flow'),
     BufferLayout.nu64('timestamp'),
 ])
-const space = greetedAccountDataLayout.span
+const space = dataLayout.span
 
 export async function establishConnection(): Promise<void> {
     connection = new Connection(url, 'singleGossip')
     const version = await connection.getVersion()
     console.log('Connection to cluster established:', url, version)
-}
-
-async function getLastTransactionTime(address: PublicKey) {
-    const signatureInfo = await connection.getConfirmedSignaturesForAddress2(address, {
-        limit: 1
-    })
-    const lastSignature = signatureInfo.pop()
-    return lastSignature?.blockTime
 }
 
 export async function getBalance(account: PublicKey) {
@@ -50,7 +39,7 @@ export async function getBalance(account: PublicKey) {
         throw 'Error: cannot find the greeted account'
     }
     console.log('Raw account info', accountInfo.data)
-    const info = greetedAccountDataLayout.decode(Buffer.from(accountInfo.data))
+    const info = dataLayout.decode(Buffer.from(accountInfo.data))
     const staticBal = Number(info.numGreets.toString())
     const flow = Number(info.flow.toString())
     const lastTranTime = Number(info.timestamp.toString())
@@ -58,9 +47,7 @@ export async function getBalance(account: PublicKey) {
     console.log('Flow', flow)
     console.log('Last time(saved)', lastTranTime)
 
-    // const lastTranTime = await getLastTransactionTime(account)
     return {staticBal, flow, lastTranTime}
-
 }
 
 export async function addBalance(address: PublicKey, payerAccount: Account) {
@@ -103,7 +90,12 @@ export async function addBalance(address: PublicKey, payerAccount: Account) {
     window.location.reload(false)
 }
 
-export async function startFlow(flow: number, senderPubKey: PublicKey, receiverPubKey: PublicKey, payerAccount: Account) {
+export async function startFlow(
+    flow: number,
+    senderPubKey: PublicKey,
+    receiverPubKey: PublicKey,
+    payerAccount: Account
+    ) {
     console.log('Creating flow from', senderPubKey.toBase58(), 'to', receiverPubKey.toBase58())
 
     const commandDataLayout = BufferLayout.struct([
@@ -150,7 +142,7 @@ export async function createProgramAc(payerAccount: Account) {
     console.log('Creating sender account', senderPubKey.toBase58())
 
     const lamports = await connection.getMinimumBalanceForRentExemption(
-        greetedAccountDataLayout.span,
+        dataLayout.span,
     )
 
     const transaction = new Transaction().add(
@@ -170,7 +162,7 @@ export async function createProgramAc(payerAccount: Account) {
             commitment: 'singleGossip',
             preflightCommitment: 'singleGossip',
         },
-    );
+    )
     console.log('Create account transaction ID', transactionId)
 
     return senderPubKey

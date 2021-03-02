@@ -1,11 +1,10 @@
-import { Component, useEffect, useState } from "react";
-import TorusSdk from "@toruslabs/torus-direct-web-sdk";
-import { Account } from "@solana/web3.js";
-import nacl from "tweetnacl";
+import { useEffect, useState } from 'react'
+import TorusSdk from '@toruslabs/torus-direct-web-sdk'
+import nacl from 'tweetnacl'
 import { Button, makeStyles, Typography } from '@material-ui/core'
-import { useHistory } from "react-router-dom";
-import "./App.css";
-import { fromHexString, getAccountInfo } from "./utils";
+import { useHistory } from 'react-router-dom'
+import './App.css'
+import { fromHexString } from './utils'
 import brandIcon from './brandIcon.svg'
 
 const useStyles = makeStyles((theme) => ({
@@ -15,7 +14,7 @@ const useStyles = makeStyles((theme) => ({
   icon: {
     maxHeight: theme.spacing(7)
   }
-}));
+}))
 
 type Props = {
   setPrivateKey: React.Dispatch<React.SetStateAction<string | null>>
@@ -29,10 +28,10 @@ function LoginScreen({ setPrivateKey }: Props) {
     async function initTorus() {
       const torusdirectsdk = new TorusSdk({
         baseUrl: `${window.location.origin}/serviceworker`,
-        network: "testnet", // details for test net
+        network: 'testnet',
       })
 
-      await torusdirectsdk.init({ skipSw: false });
+      await torusdirectsdk.init({ skipSw: false })
       setTorus(torusdirectsdk)
     }
     initTorus()
@@ -41,9 +40,9 @@ function LoginScreen({ setPrivateKey }: Props) {
   async function login() {
     console.log('Torus', torus)
     const loginDetails = await torus!.triggerLogin({
-      typeOfLogin: "google",
-      clientId: "221898609709-obfn3p63741l5333093430j3qeiinaa8.apps.googleusercontent.com",
-      verifier: "google-lrc",
+      typeOfLogin: 'google',
+      clientId: '221898609709-obfn3p63741l5333093430j3qeiinaa8.apps.googleusercontent.com',
+      verifier: 'google-lrc',
     })
     const solanaPrivateKey = nacl.sign.keyPair.fromSeed(fromHexString(loginDetails.privateKey.padStart(64))).secretKey
 
@@ -51,20 +50,20 @@ function LoginScreen({ setPrivateKey }: Props) {
     console.log('Stringified key', stringKey)
     window.localStorage.setItem('privateKey', stringKey)
     setPrivateKey(stringKey)
-  };
+  }
 
   return (
-    <div className="App">
+    <div className='App'>
       {
         torus && <>
           <img src={brandIcon} className={classes.icon}/>
-          <Typography variant="h4">SolarStream</Typography>
-          <Typography variant="h6">Streamable tokens on Solana</Typography>
-        <Button variant="contained" color="primary" onClick={login} className={classes.loginButton}>Login with Google</Button>
+          <Typography variant='h4'>SolarStream</Typography>
+          <Typography variant='h6'>Streamable tokens on Solana</Typography>
+        <Button variant='contained' color='primary' onClick={login} className={classes.loginButton}>Login with Google</Button>
         </>
       }
     </div>
   )
 }
 
-export default LoginScreen;
+export default LoginScreen
