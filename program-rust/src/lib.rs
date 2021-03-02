@@ -6,6 +6,9 @@ use solana_program::{
     msg,
     program_error::ProgramError,
     pubkey::Pubkey,
+    // clock::Clock,
+    // sysvar::{clock::Clock},
+    // rent::Rent,
 };
 use std::mem;
 
@@ -36,22 +39,27 @@ fn process_instruction(
     let mut sender_data = sender_account.try_borrow_mut_data()?;
     let operation = _instruction_data[0];
 
+    let sender_balance = LittleEndian::read_u32(&sender_data[0..4]);
+    // let sender_flow = LittleEndian::read_i32(&sender_data[4..8]);
+
+    // let clock_sysvar_info = next_account_info(accounts_iter)?;
+    // let clock = &Rent::from_account_info(clock_sysvar_info)?;
+
+    // let balance_change = sender_flow/1000; // TODO get time difference
+    // let net_sender_balance = sender_balance + balance_change; // Multiply with time diff
+
     match operation {
         1 => {
             // TODO add flows into static balance every time
             msg!("Adding balance");
-
-            let mut balance = LittleEndian::read_u32(&sender_data[0..4]);
-            msg!("Previous balance: {}", balance);
-            balance += 5;
-            LittleEndian::write_u32(&mut sender_data[0..4], balance);
-            msg!("New balance after +5: {}", balance);
+            msg!("Previous balance: {}", sender_balance);
+            LittleEndian::write_u32(&mut sender_data[0..4], sender_balance + 5);
+            msg!("New balance after +5: {}", sender_balance + 5);
         },
 
         2 => {
             // TODO update static balance every time this is called
 
-            // 1 Fluid = 10^5 Sublime
             let flow = _instruction_data[1] as i32;
 
             let receiver_account = next_account_info(accounts_iter)?;
@@ -66,6 +74,7 @@ fn process_instruction(
     }
     Ok(())
 }
+
 
 // Sanity tests
 #[cfg(test)]
