@@ -17,8 +17,11 @@ import BufferLayout from 'buffer-layout';
 const url = clusterApiUrl('devnet')
 let connection: Connection
 
-const PROGRAM_ID = 'D5krXNs4Hguw3Rwem2vjaMZZcgtjRxhx6caTwY7WNRiq'
+const PROGRAM_ID = 'A45eQjzqxKFNJYndVcinMBwGMd7c8atW9qTvp4zmDpof'
 const PROGRAM_PUBLIC_KEY = new PublicKey(PROGRAM_ID)
+
+// To get current time
+const clockAccountKey = new PublicKey('SysvarC1ock11111111111111111111111111111111')
 
 const greetedAccountDataLayout = BufferLayout.struct([
     BufferLayout.u32('numGreets'),
@@ -74,7 +77,10 @@ export async function addBalance(address: PublicKey, payerAccount: Account) {
     }
 
     const instruction = new TransactionInstruction({
-        keys: [{ pubkey: address, isSigner: false, isWritable: true }],
+        keys: [
+            { pubkey: clockAccountKey, isSigner: false, isWritable: false },
+            { pubkey: address, isSigner: false, isWritable: true },
+        ],
         programId: PROGRAM_PUBLIC_KEY,
         data,
     })
@@ -112,6 +118,7 @@ export async function startFlow(flow: number, senderPubKey: PublicKey, receiverP
 
     const instruction = new TransactionInstruction({
         keys: [
+            { pubkey: clockAccountKey, isSigner: false, isWritable: false },
             { pubkey: senderPubKey, isSigner: false, isWritable: true },
             { pubkey: receiverPubKey, isSigner: false, isWritable: true }
         ],

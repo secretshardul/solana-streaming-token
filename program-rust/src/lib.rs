@@ -6,9 +6,8 @@ use solana_program::{
     msg,
     program_error::ProgramError,
     pubkey::Pubkey,
-    // clock::Clock,
-    // sysvar::{clock::Clock},
-    // rent::Rent,
+    clock::Clock,
+    sysvar::{Sysvar},
 };
 use std::mem;
 
@@ -22,6 +21,11 @@ fn process_instruction(
     msg!("program entrypoint");
 
     let accounts_iter = &mut accounts.iter();
+
+    let clock_account = next_account_info(accounts_iter)?;
+    let clock = &Clock::from_account_info(clock_account)?;
+    msg!("Current time {}", clock.unix_timestamp);
+
     let sender_account = next_account_info(accounts_iter)?;
 
     // The account must be owned by the program in order to modify its data
@@ -42,8 +46,7 @@ fn process_instruction(
     let sender_balance = LittleEndian::read_u32(&sender_data[0..4]);
     // let sender_flow = LittleEndian::read_i32(&sender_data[4..8]);
 
-    // let clock_sysvar_info = next_account_info(accounts_iter)?;
-    // let clock = &Rent::from_account_info(clock_sysvar_info)?;
+
 
     // let balance_change = sender_flow/1000; // TODO get time difference
     // let net_sender_balance = sender_balance + balance_change; // Multiply with time diff
