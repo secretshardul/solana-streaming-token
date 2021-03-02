@@ -29,12 +29,15 @@ const useStyles = makeStyles((theme) => ({
     flowButton: {
         margin: theme.spacing(2)
     },
+    flowButtonGroup: {
+        marginTop: theme.spacing(1)
+    },
     tokenCount: {
         marginTop: theme.spacing(2)
     },
     airdropButton: {
         marginTop: theme.spacing(1)
-    }
+    },
 }));
 
 type Props = {
@@ -80,8 +83,6 @@ export default function PaymentScreen({ privateKey }: Props) {
         }
     }
 
-    const increaseNum = () => setSenderBal((prev) => prev + 1)
-
     useEffect(() => {
         establishConnection()
         setPublicKey('senderKey', setSenderKey)
@@ -97,10 +98,7 @@ export default function PaymentScreen({ privateKey }: Props) {
                     const currentTime = Math.floor(Date.now() / 1000)
                     timeDiff = currentTime - lastTranTime
                 }
-                // const bal = staticBal + timeDiff * flow /100
                 const bal = staticBal + timeDiff * flow
-
-                // console.log('Actual balance', bal)
                 setter(bal)
             }, 1000)
             return () => clearInterval(timer)
@@ -137,7 +135,7 @@ export default function PaymentScreen({ privateKey }: Props) {
                         <Typography variant="h4">You</Typography>
                         <Typography variant="h5" className={classes.tokenCount}>{senderBal}</Typography>
                         <Button variant="outlined" color="primary" className={classes.airdropButton} onClick={addTokens}>
-                            +5 Airdrop
+                            +50 Airdrop
                         </Button>
                     </Grid>
                     <Grid item xs={4}>
@@ -146,13 +144,11 @@ export default function PaymentScreen({ privateKey }: Props) {
                     </Grid>
                 </Grid>
             </Grid>
-            <Grid item xs={12} className={classes.flowButton}>
-                <Button variant="contained" color="primary" onClick={startFlowHandler}>
+            <Grid item xs={12} className={classes.flowButtonGroup}>
+                <Button variant="contained" color="primary" className={classes.flowButton} onClick={startFlowHandler}>
                     Flow
                 </Button>
-            </Grid>
-            <Grid item xs={12}>
-                <Button variant="contained" color="secondary" onClick={stopFlowHandler}>
+                <Button variant="contained" color="secondary" className={classes.flowButton} onClick={stopFlowHandler}>
                     Stop
                 </Button>
             </Grid>

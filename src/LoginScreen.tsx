@@ -2,14 +2,26 @@ import { Component, useEffect, useState } from "react";
 import TorusSdk from "@toruslabs/torus-direct-web-sdk";
 import { Account } from "@solana/web3.js";
 import nacl from "tweetnacl";
+import { Button, makeStyles, Typography } from '@material-ui/core'
 import { useHistory } from "react-router-dom";
 import "./App.css";
 import { fromHexString, getAccountInfo } from "./utils";
+import brandIcon from './brandIcon.svg'
+
+const useStyles = makeStyles((theme) => ({
+  loginButton: {
+    marginTop: theme.spacing(5)
+  },
+  icon: {
+    maxHeight: theme.spacing(7)
+  }
+}));
 
 type Props = {
   setPrivateKey: React.Dispatch<React.SetStateAction<string | null>>
 }
 function LoginScreen({ setPrivateKey }: Props) {
+  const classes = useStyles()
   const [torus, setTorus] = useState<TorusSdk>()
   const history = useHistory()
 
@@ -44,7 +56,12 @@ function LoginScreen({ setPrivateKey }: Props) {
   return (
     <div className="App">
       {
-        torus && <button onClick={login}>Login with Google</button>
+        torus && <>
+          <img src={brandIcon} className={classes.icon}/>
+          <Typography variant="h4">SolarStream</Typography>
+          <Typography variant="h6">Streamable tokens on Solana</Typography>
+        <Button variant="contained" color="primary" onClick={login} className={classes.loginButton}>Login with Google</Button>
+        </>
       }
     </div>
   )

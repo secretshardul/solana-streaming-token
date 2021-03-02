@@ -127,7 +127,7 @@ export async function startFlow(flow: number, senderPubKey: PublicKey, receiverP
             { pubkey: receiverPubKey, isSigner: false, isWritable: true }
         ],
         programId: PROGRAM_PUBLIC_KEY,
-        data, // All instructions are hellos
+        data,
     })
     const startFlowTransaction = await sendAndConfirmTransaction(
         connection,
