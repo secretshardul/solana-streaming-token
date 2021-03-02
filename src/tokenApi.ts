@@ -17,7 +17,7 @@ import BufferLayout from 'buffer-layout';
 const url = clusterApiUrl('devnet')
 let connection: Connection
 
-const PROGRAM_ID = 'A45eQjzqxKFNJYndVcinMBwGMd7c8atW9qTvp4zmDpof'
+const PROGRAM_ID = '3xA3cDxtf5fH7kGVwC9ZemU2btdSx14ekRzXBq1yASD2'
 const PROGRAM_PUBLIC_KEY = new PublicKey(PROGRAM_ID)
 
 // To get current time
@@ -25,7 +25,8 @@ const clockAccountKey = new PublicKey('SysvarC1ock111111111111111111111111111111
 
 const greetedAccountDataLayout = BufferLayout.struct([
     BufferLayout.u32('numGreets'),
-    BufferLayout.s32('flow')
+    BufferLayout.s32('flow'),
+    BufferLayout.nu64('timestamp'),
 ])
 const space = greetedAccountDataLayout.span
 
@@ -48,13 +49,16 @@ export async function getBalance(account: PublicKey) {
     if (accountInfo === null) {
         throw 'Error: cannot find the greeted account'
     }
+    console.log('Raw account info', accountInfo.data)
     const info = greetedAccountDataLayout.decode(Buffer.from(accountInfo.data))
     const staticBal = Number(info.numGreets.toString())
     const flow = Number(info.flow.toString())
+    const lastTranTime = Number(info.timestamp.toString())
     console.log('Static balance', staticBal)
     console.log('Flow', flow)
+    console.log('Last time(saved)', lastTranTime)
 
-    const lastTranTime = await getLastTransactionTime(account)
+    // const lastTranTime = await getLastTransactionTime(account)
     return {staticBal, flow, lastTranTime}
 
 }

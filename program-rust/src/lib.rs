@@ -24,7 +24,9 @@ fn process_instruction(
 
     let clock_account = next_account_info(accounts_iter)?;
     let clock = &Clock::from_account_info(clock_account)?;
-    msg!("Current time {}", clock.unix_timestamp);
+    let current_time = clock.unix_timestamp;
+    msg!("Current time {}", current_time);
+
 
     let sender_account = next_account_info(accounts_iter)?;
 
@@ -58,6 +60,8 @@ fn process_instruction(
             msg!("Previous balance: {}", sender_balance);
             LittleEndian::write_u32(&mut sender_data[0..4], sender_balance + 5);
             msg!("New balance after +5: {}", sender_balance + 5);
+
+            LittleEndian::write_i64(&mut sender_data[8..16], current_time);
         },
 
         2 => {
