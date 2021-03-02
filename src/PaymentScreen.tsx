@@ -128,19 +128,19 @@ export default function PaymentScreen({ privateKey }: Props) {
 
 
     return(
-        <Grid container className={classes.root} spacing={10}>
+        <Grid container className={classes.root} spacing={1}>
             <Grid item xs={12} className={classes.balances}>
                 <Grid container justify="center" spacing={10}>
                     <Grid item xs={4}>
                         <Typography variant="h4">You</Typography>
-                        <Typography variant="h5" className={classes.tokenCount}>{senderBal}</Typography>
+                        <Typography variant="h5" className={classes.tokenCount}>{senderBal} coins</Typography>
                         <Button variant="outlined" color="primary" className={classes.airdropButton} onClick={addTokens}>
                             +50 Airdrop
                         </Button>
                     </Grid>
                     <Grid item xs={4}>
                         <Typography variant="h4">Vendor</Typography>
-                        <Typography variant="h5" className={classes.tokenCount}>{receiverBal}</Typography>
+                        <Typography variant="h5" className={classes.tokenCount}>{receiverBal} coins</Typography>
                     </Grid>
                 </Grid>
             </Grid>

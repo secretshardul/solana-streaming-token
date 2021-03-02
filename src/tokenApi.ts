@@ -99,6 +99,8 @@ export async function addBalance(address: PublicKey, payerAccount: Account) {
         },
     )
     console.log('Response', addBalanceResponse)
+
+    window.location.reload(false)
 }
 
 export async function startFlow(flow: number, senderPubKey: PublicKey, receiverPubKey: PublicKey, payerAccount: Account) {
@@ -139,6 +141,7 @@ export async function startFlow(flow: number, senderPubKey: PublicKey, receiverP
         },
     )
     console.log('Response', startFlowTransaction)
+    window.location.reload(false)
 }
 
 export async function createProgramAc(payerAccount: Account) {
