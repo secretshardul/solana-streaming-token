@@ -70,7 +70,7 @@ export default function PaymentScreen({ privateKey }: Props) {
 
     async function startFlowHandler() {
         if(senderKey && receiverKey) {
-            await startFlow(2, senderKey, receiverKey, account)
+            await startFlow(1, senderKey, receiverKey, account)
         }
     }
 
@@ -97,7 +97,9 @@ export default function PaymentScreen({ privateKey }: Props) {
                     const currentTime = Math.floor(Date.now() / 1000)
                     timeDiff = currentTime - lastTranTime
                 }
-                const bal = staticBal + timeDiff * flow /100
+                // const bal = staticBal + timeDiff * flow /100
+                const bal = staticBal + timeDiff * flow
+
                 // console.log('Actual balance', bal)
                 setter(bal)
             }, 1000)

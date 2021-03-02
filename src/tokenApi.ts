@@ -17,7 +17,7 @@ import BufferLayout from 'buffer-layout';
 const url = clusterApiUrl('devnet')
 let connection: Connection
 
-const PROGRAM_ID = '3xA3cDxtf5fH7kGVwC9ZemU2btdSx14ekRzXBq1yASD2'
+const PROGRAM_ID = 'ugSaSJkZZ2HjfrZguYUxJRT78bs7TFPbj2vg47RYvVk'
 const PROGRAM_PUBLIC_KEY = new PublicKey(PROGRAM_ID)
 
 // To get current time

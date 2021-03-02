@@ -45,21 +45,47 @@ fn process_instruction(
     let mut sender_data = sender_account.try_borrow_mut_data()?;
     let operation = _instruction_data[0];
 
-    let sender_balance = LittleEndian::read_u32(&sender_data[0..4]);
-    // let sender_flow = LittleEndian::read_i32(&sender_data[4..8]);
+    let mut sender_balance = LittleEndian::read_u32(&sender_data[0..4]);
+    msg!("Sender balance: {}", sender_balance);
 
+    let last_sender_transaction_time = LittleEndian::read_i64(&sender_data[8..16]);
+    msg!("Last transaction for sender at {}", last_sender_transaction_time);
 
+    let saved_sender_flow = LittleEndian::read_i32(&sender_data[4..8]);
+    msg!("Got saved sender flow {}", saved_sender_flow);
 
-    // let balance_change = sender_flow/1000; // TODO get time difference
-    // let net_sender_balance = sender_balance + balance_change; // Multiply with time diff
+    if last_sender_transaction_time != 0 && saved_sender_flow != 0 {
+        // Calculate change
+        let time_diff = (current_time - last_sender_transaction_time) as i32;
+        msg!("Time difference {}", time_diff);
+
+        let change = time_diff*saved_sender_flow;
+        msg!("Static balance change {}", change);
+
+        let change_abs = change.abs() as u32;
+
+        if saved_sender_flow > 0 {
+            sender_balance = sender_balance + change_abs;
+        } else {
+            if sender_balance > change_abs {
+                sender_balance = sender_balance - change_abs;
+            } else {
+                sender_balance = 0;
+            }
+        }
+        msg!("Sender balance after adjusting flow {}", sender_balance);
+        LittleEndian::write_u32(&mut sender_data[0..4], sender_balance);
+
+    } else {
+        msg!("no saved timestamp or flow");
+    }
 
     match operation {
         1 => {
-            // TODO add flows into static balance every time
             msg!("Adding balance");
-            msg!("Previous balance: {}", sender_balance);
-            LittleEndian::write_u32(&mut sender_data[0..4], sender_balance + 5);
-            msg!("New balance after +5: {}", sender_balance + 5);
+            sender_balance = sender_balance + 50;
+            LittleEndian::write_u32(&mut sender_data[0..4], sender_balance);
+            msg!("New balance after +50: {}", sender_balance);
 
             LittleEndian::write_i64(&mut sender_data[8..16], current_time);
         },
@@ -67,21 +93,60 @@ fn process_instruction(
         2 => {
             // TODO update static balance every time this is called
 
-            let flow = _instruction_data[1] as i32;
+            let new_flow = _instruction_data[1] as i32;
 
             let receiver_account = next_account_info(accounts_iter)?;
             let mut receiver_data = receiver_account.try_borrow_mut_data()?;
 
-            msg!("Flowing {} sublime/second from {} to {}", flow, sender_account.key, receiver_account.key);
-            LittleEndian::write_i32(&mut sender_data[4..8], -flow);
-            LittleEndian::write_i32(&mut receiver_data[4..8], flow);
+            let mut receiver_balance = LittleEndian::read_u32(&receiver_data[0..4]);
+            msg!("Receiver balance: {}", receiver_balance);
+
+            // Adjust static balance for receiver
+            let last_receiver_transaction_time = LittleEndian::read_i64(&receiver_data[8..16]);
+            msg!("Last transaction for receiver at {}", last_receiver_transaction_time);
+
+            let saved_receiver_flow = LittleEndian::read_i32(&receiver_data[4..8]);
+            msg!("Got saved receiver flow {}", saved_receiver_flow);
+
+            if last_receiver_transaction_time != 0 && saved_receiver_flow  != 0 {
+                let time_diff = (current_time - last_receiver_transaction_time) as i32;
+                msg!("Time difference {}", time_diff);
+
+                let change = time_diff*saved_receiver_flow;
+                msg!("Static balance change {}", change);
+
+                let change_abs = change.abs() as u32;
+
+                if saved_receiver_flow > 0 {
+                    receiver_balance = receiver_balance + change_abs;
+                } else {
+                    if receiver_balance > change_abs {
+                        receiver_balance = receiver_balance - change_abs;
+                    } else {
+                        receiver_balance = 0;
+                    }
+                }
+                msg!("Receiver balance after adjusting flow {}", receiver_balance);
+                LittleEndian::write_u32(&mut receiver_data[0..4], receiver_balance);
+
+            } else {
+                msg!("no saved timestamp or flow");
+            }
+
+             // Save flows
+            msg!("Flowing {} sublime/second from {} to {}", new_flow, sender_account.key, receiver_account.key);
+            LittleEndian::write_i32(&mut sender_data[4..8], -new_flow);
+            LittleEndian::write_i32(&mut receiver_data[4..8], new_flow);
+
+            // Save time
+            LittleEndian::write_i64(&mut sender_data[8..16], current_time);
+            LittleEndian::write_i64(&mut receiver_data[8..16], current_time);
         },
 
         _ => msg!("Invalid operation")
     }
     Ok(())
 }
-
 
 // Sanity tests
 #[cfg(test)]
