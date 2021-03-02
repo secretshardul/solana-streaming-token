@@ -1,70 +1,33 @@
-# Getting Started with Create React App
+# Solana streaming token
+A streaming token inspired by superfluid. Streams are continuous flows of value. Once a stream is opened, no additional fees are required.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Use cases
+- Subscriptions
+- Recurring payments
 
-## Available Scripts
+## Implementation
+- 3 parameters (static balance, flow, timestamp) are stored in each program account. They are used to calculate the real time balance using the formula
+```
+REAL_TIME_BALANCE = STATIC_BALANCE + FLOW*TIME_DIFFERENCE
+```
+- Flows have the unit `tokens/second`.
+- A stream is created between a sender and a receiver. The sender's flow value is negative and the receiver's value is positive. A stream stops when `flow=0` is passed.
+- The stored static balance is updated each time the flow is changed or tokens are airdropped.
+- A timer driven program is used to visualize the flow in real time.
 
-In the project directory, you can run:
+# Tech stack
+1. Frontend: React, Typescript
+2. Solana program: Rust
+3. Wallet and authentication: Torus
 
-### `yarn start`
+# Future scope
+1. At this moment, the token supports only 2 entities- the sender and receiver. Superfluid is able to handle multiple flows simultaneously.
+2. The streaming token program is independent of the SPL token program. In future, the streaming logic will be added on top of the SPL program by creating a fork. This is similar to how Solidity developers build on the ERC20 token standard.
+3. Currently client-side calculations are required to find actual token balance at any given time. This operation should be performed on chain.
+4. To transmit actual monetary value, SolarStream tokens will be wrappers around Sol tokens or stablecoins. SuperFluid wraps and turns DAI into streamable xDAI.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
-
-### `yarn test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `yarn build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+# References
+- [SuperFluid](https://www.superfluid.finance/)
+- [SuperFluid white paper](https://www.notion.so/Superfluid-Technical-Paper-Draft-2-8b7c5c3e212a4a40ad2e252f1609daea)
+- [EIP 2100](https://github.com/ethereum/EIPs/issues/2100)
+- [ERC-1620](https://github.com/ethereum/EIPs/issues/1620)
