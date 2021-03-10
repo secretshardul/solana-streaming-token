@@ -2,7 +2,7 @@ import { Account, PublicKey } from '@solana/web3.js'
 import { makeStyles } from '@material-ui/core/styles'
 import Grid from '@material-ui/core/Grid'
 import { Button, Typography } from '@material-ui/core'
-import { addBalance, createProgramAc, establishConnection, getBalance, startFlow } from './tokenApi'
+import { addBalance, connection, createProgramAc, establishConnection, getStreamBalance, startFlow } from './tokenApi'
 import { useEffect, useState } from 'react'
 
 const useStyles = makeStyles((theme) => ({
@@ -17,19 +17,22 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(2),
     },
     balances: {
-        margin: theme.spacing(10)
+        margin: theme.spacing(10),
+    },
+    address: {
+        marginTop: theme.spacing(1),
     },
     flowButton: {
-        margin: theme.spacing(2)
+        margin: theme.spacing(2),
     },
     flowButtonGroup: {
-        marginTop: theme.spacing(1)
+        marginTop: theme.spacing(1),
     },
     tokenCount: {
-        marginTop: theme.spacing(2)
+        marginTop: theme.spacing(2),
     },
     airdropButton: {
-        marginTop: theme.spacing(1)
+        marginTop: theme.spacing(1),
     },
 }))
 
@@ -58,6 +61,7 @@ export default function PaymentScreen({ privateKey }: Props) {
             console.log('Stored', localStorageKey, ':', keyString)
             setter(new PublicKey(keyString))
         } else {
+            console.log('No account found, creating new')
             const newPublicKey = await createProgramAc(account)
             window.localStorage.setItem(localStorageKey, newPublicKey.toBase58())
             setter(newPublicKey)
@@ -76,15 +80,34 @@ export default function PaymentScreen({ privateKey }: Props) {
         }
     }
 
-    useEffect(() => {
-        establishConnection()
+    async function checkLamportBalance() {
+        const lamportBal = await connection.getBalance(account.publicKey)
+        console.log('Lamport balance', lamportBal)
+        const airdropResp = await connection.requestAirdrop(account.publicKey, 100000000)
+        console.log('Airdrop response', airdropResp)
+    }
+
+    async function setupAccounts() {
+        const lamportBal = await connection.getBalance(account.publicKey)
+        console.log('Lamport balance', lamportBal)
+        const minimumBal = 100000000
+
+        if (lamportBal < minimumBal) {
+            const airdropResp = await connection.requestAirdrop(account.publicKey, minimumBal)
+            console.log('Airdrop response', airdropResp)
+        }
         setPublicKey('senderKey', setSenderKey)
         setPublicKey('receiverKey', setReceiverKey)
+    }
+
+    useEffect(() => {
+        establishConnection()
+        setupAccounts()
     }, [])
 
     async function setBalanceListener(setter: React.Dispatch<React.SetStateAction<number>>, publicKey?: PublicKey) {
         if (publicKey) {
-            const { staticBal, flow, lastTranTime } = await getBalance(publicKey)
+            const { staticBal, flow, lastTranTime } = await getStreamBalance(publicKey)
             const timer = setInterval(() => {
                 let timeDiff = 0
                 if (lastTranTime) {
@@ -121,18 +144,22 @@ export default function PaymentScreen({ privateKey }: Props) {
 
 
     return(
-        <Grid container className={classes.root} spacing={1}>
+        <Grid container justify='center' className={classes.root} spacing={1}>
+            <Grid item xs={12} className={classes.address}>
+                <Typography variant="subtitle1">Account: {account.publicKey.toBase58()}</Typography>
+            </Grid>
+
             <Grid item xs={12} className={classes.balances}>
                 <Grid container justify='center' spacing={10}>
                     <Grid item xs={4}>
-                        <Typography variant='h4'>You</Typography>
+                        <Typography variant='h4'>Sender</Typography>
                         <Typography variant='h5' className={classes.tokenCount}>{senderBal} coins</Typography>
                         <Button variant='outlined' color='primary' className={classes.airdropButton} onClick={addTokens}>
                             +50 Airdrop
                         </Button>
                     </Grid>
                     <Grid item xs={4}>
-                        <Typography variant='h4'>Vendor</Typography>
+                        <Typography variant='h4'>Receiver</Typography>
                         <Typography variant='h5' className={classes.tokenCount}>{receiverBal} coins</Typography>
                     </Grid>
                 </Grid>

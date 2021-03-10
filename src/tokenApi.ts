@@ -12,7 +12,7 @@ import {
 import BufferLayout from 'buffer-layout'
 
 const url = clusterApiUrl('devnet')
-let connection: Connection
+export let connection: Connection
 
 const PROGRAM_ID = 'ugSaSJkZZ2HjfrZguYUxJRT78bs7TFPbj2vg47RYvVk'
 const PROGRAM_PUBLIC_KEY = new PublicKey(PROGRAM_ID)
@@ -33,7 +33,7 @@ export async function establishConnection(): Promise<void> {
     console.log('Connection to cluster established:', url, version)
 }
 
-export async function getBalance(account: PublicKey) {
+export async function getStreamBalance(account: PublicKey) {
     const accountInfo = await connection.getAccountInfo(account)
     if (accountInfo === null) {
         throw 'Error: cannot find the greeted account'

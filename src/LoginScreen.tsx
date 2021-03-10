@@ -41,7 +41,8 @@ function LoginScreen({ setPrivateKey }: Props) {
     console.log('Torus', torus)
     const loginDetails = await torus!.triggerLogin({
       typeOfLogin: 'google',
-      clientId: '200932224620-4klf8kflcdqic8t1dptivlj55gds2ml0.apps.googleusercontent.com',
+      clientId: '221898609709-obfn3p63741l5333093430j3qeiinaa8.apps.googleusercontent.com',
+      // clientId: '200932224620-4klf8kflcdqic8t1dptivlj55gds2ml0.apps.googleusercontent.com',
       verifier: 'google-lrc',
     })
     const solanaPrivateKey = nacl.sign.keyPair.fromSeed(fromHexString(loginDetails.privateKey.padStart(64))).secretKey
