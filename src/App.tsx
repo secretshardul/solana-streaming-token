@@ -8,7 +8,6 @@ export default function App() {
   const [privateKey, setPrivateKey] = useState(
     window.localStorage.getItem('privateKey')
   )
-  console.log('Private key', privateKey)
 
   return(
     <Fragment>
